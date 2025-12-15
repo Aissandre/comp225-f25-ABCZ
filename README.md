@@ -38,4 +38,5 @@ This repository serves as a mirror of how the game is structured inside Roblox S
 - This repository mirrors scripts only.
 - Models, Parts, animations, and assets remain inside Roblox Studio.
 - Script filenames and folder paths match their Roblox Explorer locations.
+- The folders with no files in them mean that they are Roblox asset folders.
     - Meaning that it contains part and only serve to be a template for what parts other creators can use.

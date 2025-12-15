@@ -1,14 +1,10 @@
--- Pathfinding for R6 NPCs
-
 local PathfindingService = game:GetService("PathfindingService")
 local RunService         = game:GetService("RunService")
 
--- Folders / roots ------------------------------------------------------------
 local npcFolder = script.Parent
 local rootNode  = workspace:WaitForChild("Nodes"):WaitForChild("startNode")
 
--- Node utilities -------------------------------------------------------------
-local function getNodeChildren(node) -- returns {BasePart}
+local function getNodeChildren(node)
 	local children = {}
 	for _, child in ipairs(node:GetChildren()) do
 		if child:IsA("BasePart") then
@@ -18,7 +14,7 @@ local function getNodeChildren(node) -- returns {BasePart}
 	return children
 end
 
-local function chooseChild(parent) -- returns BasePart?
+local function chooseChild(parent)
 	local kids = getNodeChildren(parent)
 	
 	if #kids == 0 then 
@@ -28,7 +24,6 @@ local function chooseChild(parent) -- returns BasePart?
 	return kids[math.random(1, #kids)]
 end
 
--- Movement primitives --------------------------------------------------------
 local function moveToWithTimeout(hum: Humanoid, pos: Vector3, timeout: number?)
 	timeout = timeout or 8
 	hum:MoveTo(pos)
@@ -50,7 +45,6 @@ local function moveToWithTimeout(hum: Humanoid, pos: Vector3, timeout: number?)
 	return done
 end
 
--- Rig preparation ------------------------------------------------
 local function getRootPart(model: Model): BasePart?
 	return model:FindFirstChild("Torso")
 end
@@ -61,12 +55,10 @@ local function prepareRig(npcModel: Model, hum: Humanoid): BasePart?
 		return nil 
 	end
 
-	-- Ensure the model has a PrimaryPart
 	if not npcModel.PrimaryPart then
 		npcModel.PrimaryPart = rootPart
 	end
 
-	-- Sane humanoid defaults
 	hum.PlatformStand = false
 	hum.Sit           = false
 	hum.AutoRotate    = true
@@ -75,7 +67,6 @@ local function prepareRig(npcModel: Model, hum: Humanoid): BasePart?
 	return rootPart
 end
 
--- Path creation sized to the model ------------------------------------------
 local function createPathFor(model: Model): Path
 	local size = model:GetExtentsSize()
 	return PathfindingService:CreatePath({
@@ -113,17 +104,14 @@ local function followPath(hum: Humanoid, rootPart: BasePart, model: Model, goal:
 	return not blocked
 end
 
--- Main loop per-NPC ----------------------------------------------------------
 local function randomPathfind(npcModel: Model)
 	local hum = npcModel:FindFirstChildOfClass("Humanoid")
 	if not hum then
-		--warn(npcModel.Name .. ": missing Humanoid.")
 		return
 	end
 
 	local rootPart = prepareRig(npcModel, hum)
 	if not rootPart then
-		--warn(npcModel.Name .. ": missing HumanoidRootPart/Torso.")
 		return
 	end
 
@@ -134,18 +122,17 @@ local function randomPathfind(npcModel: Model)
 		local nxt = chooseChild(cur)
 		if nxt then
 			if not followPath(hum, rootPart, npcModel, nxt.Position) then
-				task.wait(0.2) -- brief pause on failure
+				task.wait(0.2)
 			end
 			cur = nxt
 		else
-			cur = rootNode -- dead end: restart
+			cur = rootNode
 			task.wait(0.3)
 		end
 		task.wait(0.05 + math.random() * 0.05)
 	end
 end
 
--- Spawn a walker for each rig in the NPCs folder -----------------------------
 for _, child in ipairs(npcFolder:GetChildren()) do
 	if child:IsA("Model") and child:FindFirstChildOfClass("Humanoid") then
 		task.spawn(randomPathfind, child)
@@ -153,4 +140,4 @@ for _, child in ipairs(npcFolder:GetChildren()) do
 end
 
 -- By Andre --
--- Credits: RoDevs Discord
+-- Credits: RoDevs Discord and Roblox Pathfinding Documentation --

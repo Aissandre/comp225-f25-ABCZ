@@ -28,4 +28,5 @@ end)
 for _, npc in ipairs(workspace.NPCs:GetChildren()) do
 	setupNPC(npc)
 end
-    
+
+-- Andre collision Script --
